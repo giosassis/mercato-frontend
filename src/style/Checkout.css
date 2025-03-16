@@ -1,5 +1,3 @@
-/* Layout principal */
-
 body {
   font-family: 'Inter', sans-serif;
 }
@@ -29,7 +27,6 @@ body {
   overflow: auto;
 }
 
-/* Cabeçalho */
 .checkout-header {
   display: flex;
   justify-content: space-between;
@@ -44,7 +41,6 @@ body {
   z-index: 1000;
 }
 
-/* Barra de pesquisa */
 .checkout-search {
   display: flex;
   gap: 10px;
@@ -59,7 +55,6 @@ body {
   border-radius: 5px;
 }
 
-/* Conteúdo principal */
 .checkout-content {
   display: flex;
   margin-top: 20px;
@@ -67,20 +62,17 @@ body {
   flex-grow: 1;
 }
 
-/* Coluna de produtos */
 .checkout-products {
   flex: 1;
   padding: 20px;
   border-right: 1px solid #ddd;
 }
 
-/* Coluna do carrinho */
 .checkout-cart {
   flex: 1;
   padding: 20px;
 }
 
-/* Resumo do carrinho */
 .cart-summary {
   border-top: 1px solid #ddd;
   padding-top: 10px;
@@ -91,13 +83,11 @@ body {
   font-weight: bold;
 }
 
-/* Resumo do checkout */
 .checkout-summary {
   border-top: 1px solid #ddd;
   padding-top: 20px;
 }
 
-/* Ajustes específicos para a barra de pesquisa */
 .checkout-products .input-group {
   flex-wrap: nowrap;
 }
@@ -117,25 +107,25 @@ body {
   justify-content: center;
   text-align: center;
   padding: 20px;
-  background-color: #f8f9fa; /* Fundo cinza claro */
+  background-color: #f8f9fa; 
   border-radius: 8px;
-  border: 1px solid #ddd; /* Borda sutil */
-  min-height: 300px; /* Altura mínima para destacar a seção */
+  border: 1px solid #ddd; 
+  min-height: 300px; 
 }
 
 .empty-cart-icon {
-  color: #6c757d; /* Cor do ícone */
+  color: #6c757d;
   margin-bottom: 16px;
 }
 
 .empty-cart-text {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #343a40; /* Cor do texto principal */
+  color: #343a40; 
   margin-bottom: 8px;
 }
 
 .empty-cart-subtext {
   font-size: 0.875rem;
-  color: #6c757d; /* Cor do texto secundário */
+  color: #6c757d;
 }
