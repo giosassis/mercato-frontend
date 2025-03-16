@@ -21,31 +21,31 @@
   position: fixed;
   left: 0;
   top: 0;
-  padding-top: 56px; /* Ajuste conforme necessário */
+  padding-top: 56px; 
 }
 
 .dashboard-main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 250px; /* Ajuste para evitar sobreposição do sidebar */
+  margin-left: 250px;
 }
 
 .dashboard-content {
   max-width: 1200px;
-  margin: 80px auto 0 auto; /* Ajuste o margin-top conforme necessário */
+  margin: 80px auto 0 auto;
   width: 100%;
   padding: 20px;
 }
 
 .header-navbar {
-  width: calc(100% - 250px); /* Reduz o tamanho para acomodar a sidebar */
+  width: calc(100% - 250px); 
   background-color: #fff;
   padding: 10px 20px;
   border-bottom: 1px solid #ddd;
   position: fixed;
   top: 0;
-  left: 250px; /* Ajuste para evitar sobreposição do sidebar */
+  left: 250px;
   right: 0;
   z-index: 1000;
 }
