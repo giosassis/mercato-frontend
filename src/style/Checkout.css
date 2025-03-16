@@ -1,0 +1,131 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.checkout-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.checkout-sidebar {
+  width: 250px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.checkout-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 250px;
+  padding: 20px;
+  overflow: auto;
+}
+
+.checkout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  z-index: 1000;
+}
+
+.checkout-search {
+  display: flex;
+  gap: 10px;
+  margin-top: 60px;
+  width: 100%;
+}
+
+.checkout-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.checkout-content {
+  display: flex;
+  margin-top: 20px;
+  gap: 20px;
+  flex-grow: 1;
+}
+
+.checkout-products {
+  flex: 1;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.checkout-cart {
+  flex: 1;
+  padding: 20px;
+}
+
+.cart-summary {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.cart-summary h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.checkout-summary {
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.checkout-products .input-group {
+  flex-wrap: nowrap;
+}
+
+.checkout-products .form-control {
+  margin-right: 10px;
+}
+
+.checkout-products .btn {
+  white-space: nowrap;
+}
+
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  background-color: #f8f9fa; 
+  border-radius: 8px;
+  border: 1px solid #ddd; 
+  min-height: 300px; 
+}
+
+.empty-cart-icon {
+  color: #6c757d;
+  margin-bottom: 16px;
+}
+
+.empty-cart-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #343a40; 
+  margin-bottom: 8px;
+}
+
+.empty-cart-subtext {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
