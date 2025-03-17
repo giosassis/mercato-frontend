@@ -1,19 +1,39 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import { Button, Table, Form, InputGroup, Container, Row, Col, Alert, Spinner } from "react-bootstrap";
-import { FaPlus, FaMinus, FaTrash, FaCreditCard, FaReceipt, FaShoppingCart } from "react-icons/fa";
-import { searchProducts } from "../services/api";
+import {
+  Button,
+  Table,
+  Form,
+  InputGroup,
+  Container,
+  Row,
+  Col,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import {
+  FaPlus,
+  FaMinus,
+  FaTrash,
+  FaCreditCard,
+  FaReceipt,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { searchProducts, createSale } from "../services/api";
 import "../style/Checkout.css";
+import PaymentModal from "../components/PaymentModal";
 
 const CheckoutPage = () => {
+  const cashierId = "de4d0835-fa03-413f-b539-2c18fca15421";
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [barcode, setBarcode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [saleId, setSaleId] = useState(null);
+  const [processingSale, setProcessingSale] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,7 +46,7 @@ const CheckoutPage = () => {
           setProducts(data);
         } catch (err) {
           console.error("Error searching for products:", err);
-          setError("Error searching for products. Please, try again.");
+          setError("Erro ao buscar produtos. Tente novamente.");
           setProducts([]);
         } finally {
           setLoading(false);
@@ -48,11 +68,18 @@ const CheckoutPage = () => {
       if (existingItem) {
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * Number(item.price) }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                total: (item.quantity + 1) * Number(item.price),
+              }
             : item
         );
       } else {
-        return [...prevCart, { ...product, quantity: 1, total: Number(product.price) }];
+        return [
+          ...prevCart,
+          { ...product, quantity: 1, total: Number(product.price) },
+        ];
       }
     });
   };
@@ -63,8 +90,14 @@ const CheckoutPage = () => {
         item.id === id
           ? {
               ...item,
-              quantity: action === "increase" ? item.quantity + 1 : Math.max(1, item.quantity - 1),
-              total: (action === "increase" ? item.quantity + 1 : Math.max(1, item.quantity - 1)) * Number(item.price),
+              quantity:
+                action === "increase"
+                  ? item.quantity + 1
+                  : Math.max(1, item.quantity - 1),
+              total:
+                (action === "increase"
+                  ? item.quantity + 1
+                  : Math.max(1, item.quantity - 1)) * Number(item.price),
             }
           : item
       )
@@ -76,8 +109,42 @@ const CheckoutPage = () => {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + Number(item.total || 0), 0);
-  const tax = subtotal * 0.0825;
-  const total = subtotal + tax;
+  const total = subtotal;
+
+  // Criar venda antes do pagamento e abrir modal automaticamente
+  const handleCreateSale = async () => {
+    if (cart.length === 0) {
+      alert("Adicione produtos ao carrinho antes de prosseguir.");
+      return;
+    }
+
+    setProcessingSale(true);
+
+    try {
+      const saleData = {
+        cashier: cashierId, // ✅ ID do operador de caixa
+        items: cart.map((item) => ({
+          product: item.id, // ✅ Apenas o ID do produto
+          quantity: item.quantity,
+          subtotal: item.total,
+        })),
+      };
+
+      console.log("Enviando para o backend:", saleData);
+
+      const response = await createSale(saleData);
+      setSaleId(response.id); // ✅ Armazena o ID da venda criada
+      setShowPaymentModal(true); // ✅ Abre o modal automaticamente após criar a venda
+    } catch (error) {
+      console.error(
+        "Erro ao criar venda:",
+        error.response?.data || error.message
+      );
+      setError("Erro ao criar venda. Tente novamente.");
+    } finally {
+      setProcessingSale(false);
+    }
+  };
 
   return (
     <div className="checkout-layout">
@@ -86,25 +153,25 @@ const CheckoutPage = () => {
         <Container fluid className="checkout-container">
           <Row>
             <Col md={6} className="checkout-products">
-              <h2 className="mb-3">venda</h2>
+              <h2 className="mb-3">Venda</h2>
               <InputGroup className="mb-3">
                 <Form.Control
                   type="text"
-                  placeholder="procurar produtos"
+                  placeholder="Procurar produtos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Form.Control
                   type="text"
-                  placeholder="scanear código de barras"
+                  placeholder="Scanear código de barras..."
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                 />
-                <Button 
-                  onClick={() => products.length > 0 && addToCart(products[0])} 
+                <Button
+                  onClick={() => products.length > 0 && addToCart(products[0])}
                   disabled={products.length === 0}
                 >
-                  adicionar
+                  Adicionar
                 </Button>
               </InputGroup>
 
@@ -128,73 +195,104 @@ const CheckoutPage = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p> nenhum produto encontrado. </p>
+                  <p>Nenhum produto encontrado.</p>
                 )}
               </div>
             </Col>
 
             <Col md={6} className="checkout-cart">
-              <h4 className="mb-3"> venda atual </h4>
+              <h4 className="mb-3">Venda Atual</h4>
               {cart.length === 0 ? (
                 <div className="empty-cart">
                   <FaShoppingCart size={48} className="empty-cart-icon" />
-                  <p className="empty-cart-text"> nenhum produto no carrinho</p>
-                  <p className="empty-cart-subtext"> scaneie o código de barras ou adicione o produto manualmente </p>
+                  <p className="empty-cart-text">Nenhum produto no carrinho</p>
+                  <p className="empty-cart-subtext">
+                    Escaneie o código de barras ou adicione o produto
+                    manualmente.
+                  </p>
                 </div>
               ) : (
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>item</th>
-                      <th>preço</th>
-                      <th>quantidade</th>
-                      <th>total</th>
-                      <th>deletar</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cart.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.name}</td>
-                        <td>R${Number(item.price).toFixed(2)}</td>
-                        <td>
-                          <Button size="sm" variant="outline-secondary" onClick={() => updateQuantity(item.id, "decrease")}>
-                            <FaMinus />
-                          </Button>
-                          <span className="mx-2">{item.quantity}</span>
-                          <Button size="sm" variant="outline-primary" onClick={() => updateQuantity(item.id, "increase")}>
-                            <FaPlus />
-                          </Button>
-                        </td>
-                        <td>R${Number(item.total).toFixed(2)}</td>
-                        <td>
-                          <Button size="sm" variant="danger" onClick={() => removeItem(item.id)}>
-                            <FaTrash />
-                          </Button>
-                        </td>
+                <>
+                  <Table striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Preço</th>
+                        <th>Quantidade</th>
+                        <th>Total</th>
+                        <th>Deletar</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              )}
+                    </thead>
+                    <tbody>
+                      {cart.map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.name}</td>
+                          <td>R${Number(item.price).toFixed(2)}</td>
+                          <td>
+                            <Button
+                              size="sm"
+                              variant="outline-secondary"
+                              onClick={() =>
+                                updateQuantity(item.id, "decrease")
+                              }
+                            >
+                              <FaMinus />
+                            </Button>
+                            <span className="mx-2">{item.quantity}</span>
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              onClick={() =>
+                                updateQuantity(item.id, "increase")
+                              }
+                            >
+                              <FaPlus />
+                            </Button>
+                          </td>
+                          <td>R${Number(item.total).toFixed(2)}</td>
+                          <td>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => removeItem(item.id)}
+                            >
+                              <FaTrash />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
 
-              <div className="checkout-summary mt-4">
-                <p>subtotal: R${subtotal.toFixed(2)}</p>
-                <p>taxa de serviço (8.25%): R${tax.toFixed(2)}</p>
-                <h4>total: R${total.toFixed(2)}</h4>
-                <div className="checkout-buttons mt-3">
-                  <Button variant="outline-secondary" className="me-2">
-                    <FaReceipt /> imprimir nota fiscal
-                  </Button>
-                  <Button variant="primary">
-                    <FaCreditCard /> pagamento
-                  </Button>
-                </div>
-              </div>
+                  <h5>Subtotal: R${subtotal.toFixed(2)}</h5>
+                  <h5>Total: R${total.toFixed(2)}</h5>
+                </>
+              )}
+              <Button variant="outline-secondary" className="me-2">
+                <FaReceipt /> imprimir nota fiscal
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleCreateSale}
+                disabled={processingSale}
+              >
+                {processingSale ? "Processando..." : "Pagamento"}
+              </Button>
             </Col>
           </Row>
         </Container>
       </div>
+      <PaymentModal
+        show={showPaymentModal}
+        handleClose={() => setShowPaymentModal(false)}
+        saleId={saleId}
+        totalAmount={total.toFixed(2)}
+        resetCheckout={() => {
+          setCart([]); // Limpa o carrinho
+          setSaleId(null); // Reseta o ID da venda
+          setShowPaymentModal(false); // Fecha o modal
+        }}
+      />
     </div>
   );
 };

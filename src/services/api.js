@@ -39,13 +39,14 @@ export const getTotalSalesPerDay = async () => {
 };
 
 // Função para criar uma venda
-export const createSale = async (cashierId, items) => {
+export const createSale = async (saleData) => {
   try {
-    const response = await axios.post(`${API_URL}/sales/`, {
-      cashier: cashierId,
-      items,
+    const response = await axios.post(`${API_URL}/sales/`, saleData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-    return response.data; // Retorna os dados da venda criada
+    return response.data;
   } catch (error) {
     console.error("Erro ao criar venda:", error.response?.data || error.message);
     throw error;
